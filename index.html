@@ -175,9 +175,481 @@
         "scores": { "structural": { "narrative_progression": 8, "structural_complexity": 8, "pacing_variation": 7, "repetition_density": 8, "refrain_strength": 8 }, "sound": { "end_rhyme_density": 1, "internal_rhyme_density": 5, "slant_rhyme_density": 5, "assonance_density": 6, "cadence_strength": 8 }, "imagery": { "metaphor_strength": 9, "metaphor_consistency": 9, "image_density": 9, "image_escalation": 8, "sensory_detail": 8 }, "voice": { "conversational_voice": 7, "emotional_vulnerability": 8, "introspection_level": 8, "self_dialogue": 4, "humor_presence": 1 }, "conceptual": { "philosophical_depth": 9, "argument_structure": 8, "emotional_complexity": 9, "thematic_cohesion": 9, "symbolic_density": 9 } },
         "visual_profile": { "rotation_from_axis": 0.8, "radiation_from_center": 0.8, "tilt_shift": 0.7, "exposure": 0.8, "red_channel": 0.1, "green_channel": 0.6, "blue_channel": 0.8, "line_curvature": 0.8, "line_count": 0.8, "interaction_count": 0.9, "stroke_weight": 0.9, "subject_scale": 0.8, "line_straightness": 0.7 },
         "strongest_lines": [ { "strength_type": "opening", "text": "There used to be flocks of birds so big you’d be convinced the sun set early" }, { "strength_type": "conceptual", "text": "There are memories here I’ve never been allowed to make" }, { "strength_type": "guilt", "text": "Sitting with the guilt because not catching on was a matter of convenience" } ],
-        "deep_dive": [ { "section": "1. Corpus Context", "content": "<strong>Corpus status: Sixth corpus entry.</strong><br><br>This poem expands the corpus from personal emotional systems into ecological and generational loss. The poet’s established pattern remains intact: an abstract feeling becomes legible through a concrete system." }, { "section": "2. Core Interpretation", "content": "<strong>Emotional problem:</strong> The speaker grieves natural abundance they never got to witness.<br><br><strong>Conceptual problem:</strong> How do we mourn memories we were never allowed to make?" }, { "section": "3. Engine Identification", "content": "<strong>Primary Engine: Philosophical investigation.</strong><br><br>The poem investigates ecological loss as an inherited absence: missing memories, vanished species, and normalized convenience." }, { "section": "4. System Analysis", "content": "<strong>System Type:</strong> Ecological-loss / generational-memory system.<br><br><strong>Emotional Problem Modeled:</strong> The poem models grief for a diminished world as a grief without direct memory." }, { "section": "5. Structure Map", "content": "The poem moves in four major movements: Lost abundance, Personal memory and delayed recognition, Generational comparison, and Future elegy." }, { "section": "6. Literary Analysis", "content": "“Flock of Birds” transforms environmental decline into a problem of memory, inheritance, and perception. It reframes extinction not only as the death of species, but as the theft of possible human experience." }, { "section": "7. Sound Analysis", "content": "The poem’s sound is driven by repetition, lament rhythm, and cumulative phrasing. The refrain “There used to be…” recurs as a grief engine." }, { "section": "8. Symbol Analysis", "content": "Symbols include flocks of birds (lost abundance), stained glass window (nature as sacred), clear view (convenience as erasure), and species names as memorial markers." }, { "section": "9. Emotional Arc", "content": "The arc is: lost abundance → personal recollection → delayed recognition → inherited grief → future dread → accusatory elegy." }, { "section": "10. Corpus Analysis", "content": "This poem challenges a primarily inward-facing reading of the corpus by showing that the poet’s system-thinking can turn outward toward collective ecological harm." }, { "section": "11. Corpus Confidence Ratings", "content": "<strong>Strong Evidence:</strong> The poet consistently uses extended systems to organize emotional experience. <strong>New Observation:</strong> Public grief and environmental witness are major branches of the author fingerprint." }, { "section": "12. Contribution To Author Study", "content": "This poem shows the poet’s sensitivity to intensity and absence extends beyond the self into ecological witness, inherited grief, and the moral cost of convenience." }, { "section": "13. Score Justifications", "content": "<strong>Conceptual scores:</strong> <strong>Conceptual scores:</strong> Philosophical depth is high (9) because the poem examines inherited absence, ecological memory, and the morality of convenience." } ]
+        "deep_dive": [ { "section": "1. Corpus Context", "content": "<strong>Corpus status: Sixth corpus entry.</strong><br><br>This poem expands the corpus from personal emotional systems into ecological and generational loss. The poet’s established pattern remains intact: an abstract feeling becomes legible through a concrete system." }, { "section": "2. Core Interpretation", "content": "<strong>Emotional problem:</strong> The speaker grieves natural abundance they never got to witness.<br><br><strong>Conceptual problem:</strong> How do we mourn memories we were never allowed to make?" }, { "section": "3. Engine Identification", "content": "<strong>Primary Engine: Philosophical investigation.</strong><br><br>The poem investigates ecological loss as an inherited absence: missing memories, vanished species, and normalized convenience." }, { "section": "4. System Analysis", "content": "<strong>System Type:</strong> Ecological-loss / generational-memory system.<br><br><strong>Emotional Problem Modeled:</strong> The poem models grief for a diminished world as a grief without direct memory." }, { "section": "5. Structure Map", "content": "The poem moves in four major movements: Lost abundance, Personal memory and delayed recognition, Generational comparison, and Future elegy." }, { "section": "6. Literary Analysis", "content": "“Flock of Birds” transforms environmental decline into a problem of memory, inheritance, and perception. It reframes extinction not only as the death of species, but as the theft of possible human experience." }, { "section": "7. Sound Analysis", "content": "The poem’s sound is driven by repetition, lament rhythm, and cumulative phrasing. The refrain “There used to be…” recurs as a grief engine." }, { "section": "8. Symbol Analysis", "content": "Symbols include flocks of birds (lost abundance), stained glass window (nature as sacred), clear view (convenience as erasure), and species names as memorial markers." }, { "section": "9. Emotional Arc", "content": "The arc is: lost abundance → personal recollection → delayed recognition → inherited grief → future dread → accusatory elegy." }, { "section": "10. Corpus Analysis", "content": "This poem challenges a primarily inward-facing reading of the corpus by showing that the poet’s system-thinking can turn outward toward collective ecological harm." }, { "section": "11. Corpus Confidence Ratings", "content": "<strong>Strong Evidence:</strong> The poet consistently uses extended systems to organize emotional experience. <strong>New Observation:</strong> Public grief and environmental witness are major branches of the author fingerprint." }, { "section": "12. Contribution To Author Study", "content": "This poem shows the poet’s sensitivity to intensity and absence extends beyond the self into ecological witness, inherited grief, and the moral cost of convenience." }, { "section": "13. Score Justifications", "content": "<strong>Conceptual scores:</strong> Philosophical depth is high (9) because the poem examines inherited absence, ecological memory, and the morality of convenience." } ]
       }
     ];
+
+    /* ============================================================
+       POET.VIZ v1.1 HIDDEN DATA CORRECTION LAYER
+       Purpose:
+       - Preserve existing dashboard UI/rendering.
+       - Restore report-aligned metadata, scores, visual profiles.
+       - Keep canonical schema material hidden in JS data only.
+       ============================================================ */
+
+    const POET_VIZ_V11_PATCHES = {
+      P001: {
+        schema_version: "1.1",
+        primary_metaphor: {
+          vehicle: "washing machine",
+          tenor: "a harmful emotional or relational cycle the speaker keeps re-entering",
+          development: "The metaphor begins as an object to climb out of, becomes a drowning and disorientation chamber, and ends as a system the speaker must block, avoid, and stop."
+        },
+        motifs: ["climbing out", "spinning", "drowning", "doors", "repetition", "cleaning", "delicates", "blocking and deleting", "drying"],
+        rhyme_groups: [
+          {
+            sound_family: "long_i",
+            examples: ["climb", "vividly", "right", "time", "mind", "dry"],
+            function: "Links escape, memory, decision, selfhood, and release through a recurring bright vowel sound."
+          },
+          {
+            sound_family: "out_ow",
+            examples: ["out", "down", "around", "drowning"],
+            function: "Creates a loose sonic field around exit, disorientation, and submersion."
+          },
+          {
+            sound_family: "blue_you",
+            examples: ["blue", "you"],
+            function: "Connects emotional aftermath directly to the implied addressee."
+          }
+        ],
+        author_fingerprint_snapshot: {
+          conversational_voice_avg: null,
+          emotional_vulnerability_avg: null,
+          introspection_avg: null,
+          metaphor_strength_avg: null,
+          symbolic_density_avg: null,
+          philosophical_depth_avg: null,
+          argument_structure_avg: null
+        }
+      },
+
+      P002: {
+        schema_version: "1.1",
+        primary_metaphor: {
+          vehicle: "vintage sweater and other aged beloved objects",
+          tenor: "love that may become more valuable through use, time, repetition, and wear",
+          development: "The poem begins by fearing that love will fade like an over-worn sweater, then expands into examples of old things that become more revered through age and touch."
+        },
+        motifs: ["wearing", "fading", "oldness", "vintage objects", "trees", "kisses", "gold", "patching", "whispering", "holding close"],
+        rhyme_groups: [
+          {
+            sound_family: "long_o",
+            examples: ["old", "too", "cool", "rooftops", "growth", "golden", "close"],
+            function: "Supports the poem’s focus on age, duration, and held emotional intensity."
+          },
+          {
+            sound_family: "w_soft",
+            examples: ["wear", "will", "ways", "worn", "wonder", "weather", "we"],
+            function: "Creates a soft breath-like texture that matches the poem’s uncertainty and final whisper."
+          },
+          {
+            sound_family: "liquid_l",
+            examples: ["love", "old", "cool", "all", "loud", "lovingly", "relish", "close"],
+            function: "Gives the poem a liquid, tender sonic continuity."
+          }
+        ],
+        author_fingerprint_snapshot: {
+          conversational_voice_avg: 8.5,
+          emotional_vulnerability_avg: 8.5,
+          introspection_avg: 7.5,
+          metaphor_strength_avg: 8.5,
+          symbolic_density_avg: 8.5,
+          philosophical_depth_avg: 7,
+          argument_structure_avg: 8
+        }
+      },
+
+      P003: {
+        schema_version: "1.1",
+        primary_metaphor: {
+          vehicle: "the moon",
+          tenor: "a desired form of constant motion that is purposeful, needed, rhythmic, and free from restless dissatisfaction",
+          development: "The poem begins by defining restlessness as a painful internal condition, then expands through oceanic imagery before projecting the speaker’s desire onto the moon’s constant but ordered motion."
+        },
+        motifs: ["restlessness", "stillness", "waves", "crashing", "craving", "moonlight", "constant motion", "tides", "orbit", "celestial bodies"],
+        rhyme_groups: [
+          {
+            sound_family: "rest_still",
+            examples: ["restlessness", "restless", "stillness", "resting"],
+            function: "Locks the poem into the repeated condition it is trying to understand."
+          },
+          {
+            sound_family: "crave_cave",
+            examples: ["craves", "craving", "caving", "waves"],
+            function: "Links desire, surrender, and turbulence through near-rhyme and repeated consonants."
+          },
+          {
+            sound_family: "moon_oo",
+            examples: ["moon", "new", "through"],
+            function: "Creates a nocturnal softness around the speaker’s fantasy of transformation."
+          },
+          {
+            sound_family: "long_i",
+            examples: ["light", "sky", "miles", "tide", "life", "tonight"],
+            function: "Supports the poem’s vertical reach, distance, and longing."
+          }
+        ],
+        author_fingerprint_snapshot: {
+          conversational_voice_avg: 8.33,
+          emotional_vulnerability_avg: 8,
+          introspection_avg: 8,
+          metaphor_strength_avg: 8.33,
+          symbolic_density_avg: 8.33,
+          philosophical_depth_avg: 7.33,
+          argument_structure_avg: 8
+        }
+      },
+
+      P004: {
+        schema_version: "1.1",
+        word_count: 158,
+        style_category: "free verse memory-to-insight meditation with bodily metaphor",
+        narrator_mode: "first-person retrospective self-analysis",
+        primary_engine: {
+          type: "memory leading to insight",
+          description: "The poem begins with a childhood memory of dental numbness and self-striking, then converts that memory into an adult insight about numbness, self-mistreatment, relational harm, and delayed pain."
+        },
+        primary_metaphor: {
+          vehicle: "physical debt accumulated while numb",
+          tenor: "harm caused before the speaker can fully feel, recognize, or process its consequences",
+          development: "The poem begins with literal dental numbness and delayed mouth pain, then expands the pattern into adult treatment of limbs, lovers, and thoughts as alien or mistreated parts."
+        },
+        themes: [
+          "numbness",
+          "delayed pain",
+          "self-mistreatment",
+          "bodily alienation",
+          "childhood memory",
+          "consequence",
+          "emotional dissociation",
+          "recognition after harm",
+          "the body as record"
+        ],
+        motifs: [
+          "dentistry",
+          "numbness",
+          "striking",
+          "watchfulness",
+          "delayed payment",
+          "radiating pain",
+          "teeth",
+          "counting",
+          "monstrous assembly",
+          "waiting"
+        ],
+        symbols: [
+          {
+            symbol: "dental numbness",
+            meaning: "temporary emotional or physical anesthesia that permits harm before sensation returns"
+          },
+          {
+            symbol: "Frankenstein face",
+            meaning: "the body experienced as alien, assembled, artificial, or not fully owned"
+          },
+          {
+            symbol: "hitting the face",
+            meaning: "self-harm or self-testing under the false protection of numbness"
+          },
+          {
+            symbol: "mother’s watchful eyes",
+            meaning: "external protection, accountability, or the shame of being seen"
+          },
+          {
+            symbol: "pain radiating through teeth, jaw and cheeks",
+            meaning: "the delayed arrival of consequence after numbness fades"
+          },
+          {
+            symbol: "physical debt",
+            meaning: "accumulated harm that has not yet been fully felt but must eventually be paid"
+          },
+          {
+            symbol: "limbs, lovers and thoughts",
+            meaning: "the speaker’s body, relationships, and inner life as sites vulnerable to mistreatment"
+          },
+          {
+            symbol: "Shelly’s monster",
+            meaning: "a self or set of attachments treated as stitched-together, alien, and mistreated rather than whole and living"
+          }
+        ],
+        rhyme_groups: [
+          {
+            sound_family: "numb_num",
+            examples: ["numbed", "numb", "nerveless", "numbering"],
+            function: "Connects anesthesia, bodily disconnection, and accumulation."
+          },
+          {
+            sound_family: "face_f_phantom",
+            examples: ["face", "felt", "Frankenstein", "phantom"],
+            function: "Creates an eerie breathy sound field around bodily alienation."
+          },
+          {
+            sound_family: "pain_plain",
+            examples: ["pain", "plain"],
+            function: "Links physical sensation to obvious but delayed recognition."
+          },
+          {
+            sound_family: "hard_t_d",
+            examples: ["dentist", "kid", "numbed", "struck", "payment", "teeth", "debt", "thoughts", "mistreated"],
+            function: "Gives the poem blunt physical impact and pressure."
+          }
+        ],
+        emotional_arc: {
+          opening_state: "uncanny childhood curiosity about numbness and bodily alienation",
+          middle_state: "recognition that pain arrives later as payment for harm done while numb",
+          ending_state: "adult self-diagnosis of accumulated harm toward body, lovers, and thoughts while waiting for feeling to return",
+          trajectory: "from memory to bodily strangeness to delayed consequence to unresolved adult recognition"
+        },
+        scores: {
+          structural: {
+            narrative_progression: 8,
+            structural_complexity: 7,
+            pacing_variation: 6,
+            repetition_density: 5,
+            refrain_strength: 2
+          },
+          sound: {
+            end_rhyme_density: 1,
+            internal_rhyme_density: 5,
+            slant_rhyme_density: 4,
+            assonance_density: 5,
+            cadence_strength: 7
+          },
+          imagery: {
+            metaphor_strength: 8,
+            metaphor_consistency: 8,
+            image_density: 7,
+            image_escalation: 7,
+            sensory_detail: 8
+          },
+          voice: {
+            conversational_voice: 7,
+            emotional_vulnerability: 8,
+            introspection_level: 9,
+            self_dialogue: 4,
+            humor_presence: 2
+          },
+          conceptual: {
+            philosophical_depth: 8,
+            argument_structure: 8,
+            emotional_complexity: 8,
+            thematic_cohesion: 9,
+            symbolic_density: 8
+          }
+        },
+        strongest_lines: [
+          {
+            line_number: 3,
+            strength_type: "bodily alienation",
+            text: "My face felt Frankenstein,",
+            reason: "A compressed and uncanny phrase that immediately establishes bodily alienation."
+          },
+          {
+            line_number: 8,
+            strength_type: "sensory paradox",
+            text: "How strange it felt to be struck",
+            reason: "Captures the eerie paradox of impact without sensation."
+          },
+          {
+            line_number: 10,
+            strength_type: "conceptual anchor",
+            text: "Payment for these actions would come",
+            reason: "Introduces the debt logic that governs the poem’s adult insight."
+          },
+          {
+            line_number: 17,
+            strength_type: "symbolic turn",
+            text: "How often am I gathering that odd physical debt-",
+            reason: "Transforms the childhood memory into a broader theory of delayed consequence."
+          },
+          {
+            line_number: 18,
+            strength_type: "field expansion",
+            text: "Treating limbs, lovers and thoughts",
+            reason: "Powerfully expands the field of harm from body to relationships and mind."
+          },
+          {
+            line_number: 22,
+            strength_type: "sound and recognition",
+            text: "Waiting to realize pain that is plain to see",
+            reason: "Uses sound echo to connect delayed feeling with obvious but resisted truth."
+          }
+        ],
+        author_fingerprint_snapshot: {
+          conversational_voice_avg: 8,
+          emotional_vulnerability_avg: 8,
+          introspection_avg: 8.25,
+          metaphor_strength_avg: 8.25,
+          symbolic_density_avg: 8.25,
+          philosophical_depth_avg: 7.5,
+          argument_structure_avg: 8
+        }
+      },
+
+      P005: {
+        schema_version: "1.1",
+        primary_metaphor: {
+          vehicle: "prism of light",
+          tenor: "the self as a receptive and transformative body through which experience passes",
+          development: "The poem begins by naming the speaker as a prism, tests that claim through spring, sunlight, petals, hawks, danger, and seasons, then returns to the metaphor with fuller emotional and symbolic authority."
+        },
+        motifs: ["light", "reflection", "spring", "flowers", "skin", "sun", "highway", "hawk", "gold", "seasons", "systems", "feathers", "touch", "chroma"],
+        emotional_arc: {
+          opening_state: "luminous self-definition as a prism of light in human form",
+          middle_state: "overwhelmed awe before spring, flowers, sunlight, touch, highway blooms, and the hawk-shadow crossing the sun",
+          ending_state: "expansive acceptance of the self as a body that receives and reflects beauty, pain, growth, change, seasons, and everything",
+          trajectory: "from identity claim to sensory proof to cosmic scale to dangerous awe to full acceptance of perceptual intensity"
+        },
+        author_fingerprint_snapshot: {
+          conversational_voice_avg: 7.8,
+          emotional_vulnerability_avg: 8,
+          introspection_avg: 8.2,
+          metaphor_strength_avg: 8.4,
+          symbolic_density_avg: 8.4,
+          philosophical_depth_avg: 7.6,
+          argument_structure_avg: 7.8
+        }
+      },
+
+      P006: {
+        schema_version: "1.1",
+        primary_metaphor: {
+          vehicle: "flocks of birds so large they alter the sky",
+          tenor: "lost ecological abundance and the scale of life removed from the speaker’s possible experience",
+          development: "The poem begins with enormous vanished flocks and migrations, narrows into the windshield as evidence of decline, expands into generational memory and species loss, then returns to the flock as an image the reader must imagine because direct memory has been stolen."
+        },
+        motifs: ["flocks", "birds", "butterflies", "sky", "wings", "windshields", "clear views", "forests", "condos", "rivers", "species names", "fireflies", "condors", "inconvenience"],
+        emotional_arc: {
+          opening_state: "awe-filled grief for vanished abundance the speaker never personally witnessed",
+          middle_state: "personal recollection of windshield insects turns into guilt over convenience and delayed recognition",
+          ending_state: "future dread and accusatory mourning as the speaker forces imagination to replace stolen memory",
+          trajectory: "from lost abundance to personal memory to ecological guilt to generational grief to future extinction anxiety"
+        },
+        author_fingerprint_snapshot: {
+          conversational_voice_avg: 7.67,
+          emotional_vulnerability_avg: 8,
+          introspection_avg: 8.17,
+          metaphor_strength_avg: 8.5,
+          symbolic_density_avg: 8.5,
+          philosophical_depth_avg: 7.83,
+          argument_structure_avg: 7.83
+        }
+      }
+    };
+
+    function deepMergePoetViz(target, source) {
+      Object.keys(source).forEach(key => {
+        const sourceValue = source[key];
+
+        if (
+          sourceValue &&
+          typeof sourceValue === "object" &&
+          !Array.isArray(sourceValue)
+        ) {
+          if (!target[key] || typeof target[key] !== "object" || Array.isArray(target[key])) {
+            target[key] = {};
+          }
+          deepMergePoetViz(target[key], sourceValue);
+        } else {
+          target[key] = sourceValue;
+        }
+      });
+
+      return target;
+    }
+
+    function poetVizVisualProfileFromScores(scores) {
+      return {
+        rotation_from_axis: scores.structural.narrative_progression / 10,
+        radiation_from_center: scores.structural.structural_complexity / 10,
+        tilt_shift: scores.structural.pacing_variation / 10,
+        exposure: scores.structural.repetition_density / 10,
+        brightness: scores.structural.refrain_strength / 10,
+
+        red_channel: scores.sound.end_rhyme_density / 10,
+        orange_channel: scores.sound.internal_rhyme_density / 10,
+        purple_channel: scores.sound.slant_rhyme_density / 10,
+        green_channel: scores.sound.assonance_density / 10,
+        blue_channel: scores.sound.cadence_strength / 10,
+
+        saturation_shift: scores.imagery.metaphor_strength / 10,
+        hue_stability: scores.imagery.metaphor_consistency / 10,
+        pixel_density: scores.imagery.image_density / 10,
+        subject_scale: scores.imagery.image_escalation / 10,
+        sharpness: scores.imagery.sensory_detail / 10,
+
+        line_straightness: scores.voice.conversational_voice / 10,
+        line_curvature: scores.voice.emotional_vulnerability / 10,
+        line_count: scores.voice.introspection_level / 10,
+        line_interactions: scores.voice.self_dialogue / 10,
+        border_interaction: scores.voice.humor_presence / 10,
+
+        stroke_weight: scores.conceptual.philosophical_depth / 10,
+        negative_space_complexity: scores.conceptual.argument_structure / 10,
+        blank_space_ratio: scores.conceptual.emotional_complexity / 10,
+        line_continuity: scores.conceptual.thematic_cohesion / 10,
+        interaction_count: scores.conceptual.symbolic_density / 10
+      };
+    }
+
+    function normalizeEmotionalArcForDashboard(poem) {
+      if (!poem.emotional_arc) return;
+
+      poem.emotional_arc.start = poem.emotional_arc.start || poem.emotional_arc.opening_state;
+      poem.emotional_arc.peak = poem.emotional_arc.peak || poem.emotional_arc.middle_state;
+      poem.emotional_arc.resolution = poem.emotional_arc.resolution || poem.emotional_arc.ending_state;
+
+      poem.emotional_arc.opening_state = poem.emotional_arc.opening_state || poem.emotional_arc.start;
+      poem.emotional_arc.middle_state = poem.emotional_arc.middle_state || poem.emotional_arc.peak;
+      poem.emotional_arc.ending_state = poem.emotional_arc.ending_state || poem.emotional_arc.resolution;
+
+      poem.emotional_arc.trajectory =
+        poem.emotional_arc.trajectory ||
+        `${poem.emotional_arc.start} → ${poem.emotional_arc.peak} → ${poem.emotional_arc.resolution}`;
+    }
+
+    function normalizeStrongestLinesForDashboard(poem) {
+      if (!Array.isArray(poem.strongest_lines)) return;
+
+      poem.strongest_lines = poem.strongest_lines.map(line => ({
+        ...line,
+        strength_type: line.strength_type || (line.line_number ? `line ${line.line_number}` : "highlight")
+      }));
+    }
+
+    function applyPoetVizV11Corrections() {
+      POEMS_DB.forEach(poem => {
+        if (typeof poem.text === "string") {
+          poem.text = poem.text.replace(/\\n/g, "\n");
+        }
+
+        const patch = POET_VIZ_V11_PATCHES[poem.poem_id];
+
+        if (patch) {
+          deepMergePoetViz(poem, patch);
+        }
+
+        if (poem.scores) {
+          poem.visual_profile = poetVizVisualProfileFromScores(poem.scores);
+        }
+
+        normalizeEmotionalArcForDashboard(poem);
+        normalizeStrongestLinesForDashboard(poem);
+
+        // 10. Remove duplicated wording "Conceptual scores:" in the deep dive
+        if (poem.deep_dive) {
+          poem.deep_dive.forEach(section => {
+            if (section.content) {
+              section.content = section.content.replace(/<strong>Conceptual scores:<\/strong>\s*<strong>Conceptual scores:<\/strong>/g, "<strong>Conceptual scores:</strong>");
+            }
+          });
+        }
+      });
+    }
+
+    applyPoetVizV11Corrections();
+
+    /* =================== END POET.VIZ v1.1 CORRECTION LAYER =================== */
 
     let state = {
       activeTab: 'dashboard',
