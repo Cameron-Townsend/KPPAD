@@ -893,6 +893,7 @@ function renderInterpretiveArtifact(poem, canvas) {
       return aggregated.map(a => ({ trait: a.trait, score: a.score / POEMS_DB.length }));
     }
 
+    /*
     function createRadarChart(data) {
       const size = window.innerWidth < 640 ? 300 : 450;
       const center = size / 2;
@@ -946,6 +947,122 @@ function renderInterpretiveArtifact(poem, canvas) {
       svg += `</svg></div>`;
       return svg;
     }
+    */
+
+    function createFingerprintChart(data) {
+      const size = window.innerWidth < 640 ? 320 : 450;
+      const center = size / 2;
+      const maxR = (size / 2) - 65;
+      const maxScore = 10;
+
+      function getSmoothClosedPath(points) {
+        if (points.length < 3) return "";
+        let path = "";
+        const midpoints = [];
+        for (let i = 0; i < points.length; i++) {
+          const p1 = points[i];
+          const p2 = points[(i + 1) % points.length];
+          midpoints.push({ x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 });
+        }
+        path += `M ${midpoints[0].x},${midpoints[0].y}`;
+        for (let i = 0; i < points.length; i++) {
+          const p = points[(i + 1) % points.length];
+          const mid = midpoints[(i + 1) % points.length];
+          path += ` Q ${p.x},${p.y} ${mid.x},${mid.y}`;
+        }
+        return path;
+      }
+
+      const getCoordinates = (value, angle) => ({
+        x: center + (value / maxScore) * maxR * Math.cos(angle),
+        y: center + (value / maxScore) * maxR * Math.sin(angle)
+      });
+
+      let svg = `<div class="flex justify-center items-center w-full"><svg width="${size}" height="${size}" class="overflow-visible font-sans">`;
+
+      // 1. Background Ridge Layer (Abstract Fingerprint/Whorl)
+      const numRings = 14;
+      for (let ring = 1; ring <= numRings; ring++) {
+        const ringPoints = [];
+        const ringProgress = ring / numRings;
+        // Shift center down for inner rings to create a core loop/whorl
+        const offsetY = (1 - ringProgress) * 20; 
+        for (let i = 0; i < 40; i++) {
+          const angle = (Math.PI * 2 * i) / 40;
+          const r = 10 + ringProgress * maxR * 0.95;
+          // Organic stretch and wobble
+          const stretch = 1 + (Math.sin(angle) > 0 ? Math.sin(angle) * 0.2 : 0); // bulge at bottom
+          const noise = Math.sin(angle * 6 + ring) * 2 + Math.cos(angle * 9 - ring) * 1.5;
+          ringPoints.push({
+            x: center + Math.cos(angle) * (r * stretch + noise),
+            y: center + offsetY + Math.sin(angle) * (r * stretch + noise)
+          });
+        }
+        // Fade out inner and outer rings slightly
+        const alpha = 0.1 + Math.sin(ringProgress * Math.PI) * 0.2;
+        svg += `<path d="${getSmoothClosedPath(ringPoints)}" fill="none" stroke="rgba(148, 163, 184, ${alpha})" stroke-width="1" />`;
+      }
+
+      // Radial Axes
+      data.forEach((_, i) => {
+        const angle = (Math.PI * 2 * i) / data.length - Math.PI / 2;
+        const coords = getCoordinates(10.5, angle);
+        svg += `<line x1="${center}" y1="${center}" x2="${coords.x}" y2="${coords.y}" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="2,4" opacity="0.6"/>`;
+      });
+
+      // 2. Data Ridge Layer (Aggregated Scores)
+      const dataPoints = data.map((d, i) => {
+        const angle = (Math.PI * 2 * i) / data.length - Math.PI / 2;
+        const r = 20 + (d.score / maxScore) * (maxR - 20); // Min radius 20
+        return {
+          x: center + Math.cos(angle) * r,
+          y: center + Math.sin(angle) * r
+        };
+      });
+
+      // Optional subtle fill
+      svg += `<path d="${getSmoothClosedPath(dataPoints)}" fill="rgba(15, 23, 42, 0.04)" stroke="none" />`;
+
+      // Draw multiple nested ridges to represent the data line as a thicker "print" mark
+      for(let j = -2; j <= 2; j++) {
+        const offsetPoints = data.map((d, i) => {
+          const angle = (Math.PI * 2 * i) / data.length - Math.PI / 2;
+          // Interpolate surrounding scores slightly for organic smoothing across sectors
+          const prevScore = data[(i - 1 + data.length) % data.length].score;
+          const nextScore = data[(i + 1) % data.length].score;
+          const smoothedScore = d.score * 0.7 + prevScore * 0.15 + nextScore * 0.15;
+          
+          const r = 20 + (smoothedScore / maxScore) * (maxR - 20) + (j * 3.5); 
+          return {
+            x: center + Math.cos(angle) * r,
+            y: center + Math.sin(angle) * r
+          };
+        });
+        
+        const alpha = Math.abs(j) === 0 ? 0.8 : (Math.abs(j) === 1 ? 0.4 : 0.15);
+        const width = Math.abs(j) === 0 ? 2.5 : 1.5;
+        svg += `<path d="${getSmoothClosedPath(offsetPoints)}" fill="none" stroke="rgba(15, 23, 42, ${alpha})" stroke-width="${width}" stroke-linecap="round" />`;
+      }
+
+      // Add nodes at the exact data points
+      dataPoints.forEach(p => {
+        svg += `<circle cx="${p.x}" cy="${p.y}" r="3" fill="#0f172a" />`;
+        svg += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1" />`;
+      });
+
+      // 3. Labels
+      data.forEach((d, i) => {
+        const angle = (Math.PI * 2 * i) / data.length - Math.PI / 2;
+        const coords = getCoordinates(11.8, angle);
+        let anchor = "middle";
+        if (Math.cos(angle) > 0.1) anchor = "start";
+        if (Math.cos(angle) < -0.1) anchor = "end";
+        svg += `<text x="${coords.x}" y="${coords.y + 4}" text-anchor="${anchor}" fill="#475569" class="text-[10px] sm:text-xs font-bold tracking-wider capitalize">${d.trait}</text>`;
+      });
+
+      svg += `</svg></div>`;
+      return svg;
+    }
 
     function renderDashboard() {
       const aggData = getAggregatedFingerprint();
@@ -967,7 +1084,7 @@ function renderInterpretiveArtifact(poem, canvas) {
           
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="lg:col-span-2 print-panel p-6 flex flex-col justify-center relative overflow-hidden bg-white">
-              ${createRadarChart(aggData)}
+              ${createFingerprintChart(aggData)}
             </div>
             
             <div class="space-y-6">
