@@ -1058,12 +1058,13 @@ function renderInterpretiveArtifact(poem, canvas) {
         if (Math.cos(angle) > 0.1) anchor = "start";
         if (Math.cos(angle) < -0.1) anchor = "end";
         
-        const words = d.trait.split(' ');
+        const words = d.trait.split(/_+| /); // Split by space or underscore
         
-        svg += `<text x="${coords.x}" y="${coords.y}" text-anchor="${anchor}" fill="#475569" font-size="12" font-weight="700" letter-spacing="0.05em" style="text-transform: capitalize;">`;
+        svg += `<text x="${coords.x}" y="${coords.y}" text-anchor="${anchor}" fill="#475569" class="text-[10px] sm:text-[11px] font-bold tracking-widest uppercase font-mono">`;
         if (words.length > 1) {
-           svg += `<tspan x="${coords.x}" dy="-0.4em">${words[0]}</tspan>`;
-           svg += `<tspan x="${coords.x}" dy="1.3em">${words.slice(1).join(' ')}</tspan>`;
+           // Center the text block vertically relative to its coordinate
+           svg += `<tspan x="${coords.x}" dy="-0.2em">${words[0]}</tspan>`;
+           svg += `<tspan x="${coords.x}" dy="1.2em">${words.slice(1).join(' ')}</tspan>`;
         } else {
            svg += `<tspan x="${coords.x}" dy="0.3em">${words[0]}</tspan>`;
         }
