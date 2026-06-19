@@ -1060,7 +1060,7 @@ function renderInterpretiveArtifact(poem, canvas) {
         
         const words = d.trait.split(/_+| /); // Split by space or underscore
         
-        svg += `<text x="${coords.x}" y="${coords.y}" text-anchor="${anchor}" fill="#475569" class="text-[10px] sm:text-[11px] font-bold tracking-widest uppercase font-mono">`;
+        svg += `<text x="${coords.x}" y="${coords.y}" text-anchor="${anchor}" fill="#475569" class="text-[14px] sm:text-[16px] font-bold tracking-wider uppercase font-mono">`;
         if (words.length > 1) {
            // Center the text block vertically relative to its coordinate
            svg += `<tspan x="${coords.x}" dy="-0.2em">${words[0]}</tspan>`;
