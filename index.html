@@ -20,6 +20,57 @@
     .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
     .print-panel { background: #ffffff; border: 1px solid #cbd5e1; box-shadow: 3px 3px 0px #e2e8f0; transition: box-shadow 0.2s ease, transform 0.2s ease; }
     .print-panel:hover { box-shadow: 4px 4px 0px #cbd5e1; transform: translate(-1px, -1px); }
+
+    /* Poem Reading Display */
+    .poem-text {
+      max-width: 42rem;
+      margin: 0 auto;
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: clamp(1.05rem, 2.4vw, 1.25rem);
+      line-height: 1.7;
+      color: #1e293b;
+      text-align: left;
+    }
+
+    .poem-stanza {
+      margin-bottom: 1.7em;
+    }
+
+    .poem-stanza:last-child {
+      margin-bottom: 0;
+    }
+
+    .poem-line {
+      display: block;
+      padding-left: 1.4em;
+      text-indent: -1.4em;
+      margin-bottom: 0.15em;
+      overflow-wrap: break-word;
+    }
+
+    .poem-empty {
+      color: #94a3b8;
+      font-style: italic;
+    }
+
+    @media (max-width: 640px) {
+      .poem-text {
+        max-width: 100%;
+        font-size: 1.05rem;
+        line-height: 1.75;
+      }
+
+      .poem-stanza {
+        margin-bottom: 2em;
+        padding-left: 0.75rem;
+        border-left: 1px solid rgba(148, 163, 184, 0.25);
+      }
+
+      .poem-line {
+        padding-left: 1.25em;
+        text-indent: -1.25em;
+      }
+    }
   </style>
 </head>
 <body class="h-screen w-full overflow-hidden flex selection:bg-stone-300/50">
@@ -842,6 +893,283 @@ function renderInterpretiveArtifact(poem, canvas) {
 }
 // =================== END INTERPRETIVE ARTIFACT ENGINE ===================
 
+    // =================== POEM TEXT RENDERING HELPER ===================
+    function normalizePoemText(rawText) {
+      return String(rawText || "")
+        .replace(/\\r\\n/g, "\n")
+        .replace(/\\n/g, "\n")
+        .replace(/\r\n/g, "\n")
+        .replace(/\r/g, "\n")
+        .split("\n")
+        .map(line => line.replace(/[ \t]+$/g, ""))
+        .join("\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function renderPoemText(rawText) {
+      const normalized = normalizePoemText(rawText);
+
+      if (!normalized) {
+        return `<div class="poem-text poem-empty">No poem text available.</div>`;
+      }
+
+      const stanzas = normalized.split(/\n\s*\n/);
+
+      return `
+        <div class="poem-text">
+          ${stanzas.map(stanza => {
+            const lines = stanza
+              .split("\n")
+              .map(line => line.trimEnd())
+              .filter(line => line.length > 0)
+              .map(line => `<div class="poem-line">${escapeHtml(line)}</div>`)
+              .join("");
+
+            return `<div class="poem-stanza">${lines}</div>`;
+          }).join("")}
+        </div>
+      `;
+    }
+    // =================== END POEM TEXT RENDERING HELPER ===================
+
+    // =================== RECITATION STUDIO STATE & HELPERS ===================
+    const recitationState = {
+      mediaRecorder: null,
+      stream: null,
+      chunks: [],
+      audioBlob: null,
+      audioUrl: null,
+      isRecording: false,
+      startedAt: null,
+      timerInterval: null
+    };
+
+    function getSupportedAudioMimeType() {
+      if (typeof MediaRecorder === 'undefined') return "";
+      const types = [
+        "audio/webm;codecs=opus",
+        "audio/webm",
+        "audio/ogg;codecs=opus",
+        "audio/ogg",
+        "audio/mp4"
+      ];
+      return types.find(type => MediaRecorder.isTypeSupported(type)) || "";
+    }
+
+    function getAudioExtension(mimeType) {
+      if (!mimeType) return ".webm";
+      if (mimeType.includes("mp4")) return ".mp4";
+      if (mimeType.includes("ogg")) return ".ogg";
+      return ".webm";
+    }
+
+    function makeSafeFilename(poem) {
+      const raw = `${poem.poem_id}-${poem.title}-recitation`;
+      return raw.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    }
+
+    function formatRecordingTime(ms) {
+      const totalSeconds = Math.floor(ms / 1000);
+      const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+      const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+      return `${minutes}:${seconds}`;
+    }
+
+    function updateRecitationUI(stateName) {
+      const recordBtn = document.getElementById('record-btn');
+      const stopBtn = document.getElementById('stop-btn');
+      const resetBtn = document.getElementById('reset-btn');
+      const downloadLink = document.getElementById('download-recording-link');
+      const audioPlayer = document.getElementById('recitation-audio');
+      const statusText = document.getElementById('recording-status');
+      const timerText = document.getElementById('recording-timer');
+
+      if (!recordBtn) return; // Not currently in Reading Room
+
+      switch (stateName) {
+        case 'ready':
+          recordBtn.disabled = false;
+          recordBtn.textContent = "Record";
+          recordBtn.className = "px-4 py-2 text-sm font-mono border border-slate-900 bg-slate-900 text-white hover:bg-slate-800 transition-colors";
+          stopBtn.disabled = true;
+          stopBtn.className = "px-4 py-2 text-sm font-mono border border-slate-200 text-slate-400 bg-slate-50";
+          resetBtn.disabled = true;
+          resetBtn.className = "px-4 py-2 text-sm font-mono border border-slate-200 text-slate-400 bg-slate-50";
+          downloadLink.classList.add('pointer-events-none', 'text-slate-400', 'bg-slate-50', 'border-slate-200');
+          downloadLink.classList.remove('border-slate-900', 'text-slate-900', 'hover:bg-slate-100');
+          audioPlayer.classList.add('hidden');
+          statusText.textContent = "Ready to record.";
+          statusText.classList.remove('text-red-600');
+          timerText.textContent = "00:00";
+          break;
+        case 'recording':
+          recordBtn.disabled = true;
+          recordBtn.className = "px-4 py-2 text-sm font-mono border border-slate-200 text-slate-400 bg-slate-50";
+          stopBtn.disabled = false;
+          stopBtn.className = "px-4 py-2 text-sm font-mono border border-red-600 bg-red-600 text-white hover:bg-red-700 transition-colors";
+          resetBtn.disabled = true;
+          downloadLink.classList.add('pointer-events-none', 'text-slate-400', 'bg-slate-50', 'border-slate-200');
+          downloadLink.classList.remove('border-slate-900', 'text-slate-900', 'hover:bg-slate-100');
+          audioPlayer.classList.add('hidden');
+          statusText.textContent = "Recording...";
+          statusText.classList.add('text-red-600');
+          statusText.classList.remove('text-slate-500');
+          break;
+        case 'recorded':
+          recordBtn.disabled = true;
+          recordBtn.textContent = "Record";
+          recordBtn.className = "px-4 py-2 text-sm font-mono border border-slate-200 text-slate-400 bg-slate-50";
+          stopBtn.disabled = true;
+          stopBtn.className = "px-4 py-2 text-sm font-mono border border-slate-200 text-slate-400 bg-slate-50";
+          resetBtn.disabled = false;
+          resetBtn.className = "px-4 py-2 text-sm font-mono border border-slate-900 text-slate-900 hover:bg-slate-100 transition-colors";
+          downloadLink.classList.remove('pointer-events-none', 'text-slate-400', 'bg-slate-50', 'border-slate-200');
+          downloadLink.classList.add('border-slate-900', 'text-slate-900', 'hover:bg-slate-100');
+          audioPlayer.classList.remove('hidden');
+          statusText.textContent = "Recording ready.";
+          statusText.classList.remove('text-red-600');
+          statusText.classList.add('text-slate-500');
+          break;
+        case 'unsupported':
+          recordBtn.disabled = true;
+          stopBtn.disabled = true;
+          resetBtn.disabled = true;
+          statusText.textContent = "Recording is not supported in this browser. Try Chrome, Edge, or Firefox on HTTPS or localhost.";
+          statusText.classList.add('text-red-600');
+          break;
+        case 'error':
+          recordBtn.disabled = false;
+          recordBtn.className = "px-4 py-2 text-sm font-mono border border-slate-900 bg-slate-900 text-white hover:bg-slate-800 transition-colors";
+          stopBtn.disabled = true;
+          stopBtn.className = "px-4 py-2 text-sm font-mono border border-slate-200 text-slate-400 bg-slate-50";
+          resetBtn.disabled = true;
+          statusText.textContent = "Microphone access was blocked or unavailable. This feature requires microphone permission and may require HTTPS or localhost.";
+          statusText.classList.add('text-red-600');
+          break;
+      }
+    }
+
+    async function startRecitationRecording() {
+      if (!navigator.mediaDevices || !window.MediaRecorder) {
+        updateRecitationUI('unsupported');
+        return;
+      }
+
+      resetRecitationRecording(true); // reset silently to clear previous tracks
+
+      try {
+        recitationState.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        
+        const mimeType = getSupportedAudioMimeType();
+        recitationState.mediaRecorder = mimeType
+          ? new MediaRecorder(recitationState.stream, { mimeType })
+          : new MediaRecorder(recitationState.stream);
+
+        recitationState.mediaRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) {
+            recitationState.chunks.push(e.data);
+          }
+        };
+
+        recitationState.mediaRecorder.onstop = () => {
+          const mimeTypeUsed = recitationState.mediaRecorder.mimeType || 'audio/webm';
+          recitationState.audioBlob = new Blob(recitationState.chunks, { type: mimeTypeUsed });
+          recitationState.audioUrl = URL.createObjectURL(recitationState.audioBlob);
+          
+          const audioPlayer = document.getElementById('recitation-audio');
+          const downloadLink = document.getElementById('download-recording-link');
+          
+          if(audioPlayer) audioPlayer.src = recitationState.audioUrl;
+          
+          if(downloadLink) {
+            const poem = POEMS_DB.find(p => p.poem_id === state.readingPoemId) || POEMS_DB[0];
+            downloadLink.href = recitationState.audioUrl;
+            downloadLink.download = makeSafeFilename(poem) + getAudioExtension(mimeTypeUsed);
+          }
+
+          updateRecitationUI('recorded');
+        };
+
+        recitationState.mediaRecorder.start();
+        recitationState.isRecording = true;
+        recitationState.startedAt = Date.now();
+        
+        updateRecitationUI('recording');
+
+        recitationState.timerInterval = setInterval(() => {
+          const timerText = document.getElementById('recording-timer');
+          if (timerText) {
+            timerText.textContent = formatRecordingTime(Date.now() - recitationState.startedAt);
+          }
+        }, 1000);
+
+      } catch (err) {
+        console.error("Microphone access error:", err);
+        updateRecitationUI('error');
+      }
+    }
+
+    function stopRecitationRecording() {
+      if (recitationState.mediaRecorder && recitationState.isRecording) {
+        recitationState.mediaRecorder.stop();
+        recitationState.isRecording = false;
+      }
+      if (recitationState.stream) {
+        recitationState.stream.getTracks().forEach(track => track.stop());
+        recitationState.stream = null;
+      }
+      if (recitationState.timerInterval) {
+        clearInterval(recitationState.timerInterval);
+        recitationState.timerInterval = null;
+      }
+    }
+
+    function resetRecitationRecording(silent = false) {
+      stopRecitationRecording();
+      
+      if (recitationState.audioUrl) {
+        URL.revokeObjectURL(recitationState.audioUrl);
+      }
+      
+      recitationState.chunks = [];
+      recitationState.audioBlob = null;
+      recitationState.audioUrl = null;
+      recitationState.startedAt = null;
+      
+      if (!silent) {
+        updateRecitationUI('ready');
+      }
+    }
+
+    function restoreRecitationUI() {
+      if (recitationState.isRecording) {
+        updateRecitationUI('recording');
+      } else if (recitationState.audioUrl) {
+        updateRecitationUI('recorded');
+        const audioPlayer = document.getElementById('recitation-audio');
+        const downloadLink = document.getElementById('download-recording-link');
+        if (audioPlayer) audioPlayer.src = recitationState.audioUrl;
+        if (downloadLink) {
+          const poem = POEMS_DB.find(p => p.poem_id === state.readingPoemId) || POEMS_DB[0];
+          downloadLink.href = recitationState.audioUrl;
+          downloadLink.download = makeSafeFilename(poem) + getAudioExtension(recitationState.mediaRecorder ? recitationState.mediaRecorder.mimeType : "");
+        }
+      } else {
+        updateRecitationUI('ready');
+      }
+    }
+    // =================== END RECITATION STUDIO HELPERS ===================
+
     let state = {
       activeTab: 'dashboard',
       selectedPoemId: POEMS_DB.length > 0 ? POEMS_DB[0].poem_id : null,
@@ -892,62 +1220,6 @@ function renderInterpretiveArtifact(poem, canvas) {
 
       return aggregated.map(a => ({ trait: a.trait, score: a.score / POEMS_DB.length }));
     }
-
-    /*
-    function createRadarChart(data) {
-      const size = window.innerWidth < 640 ? 300 : 450;
-      const center = size / 2;
-      const radius = (size / 2) - 60;
-      const maxScore = 10;
-
-      const getCoordinates = (value, angle) => ({
-        x: center + (value / maxScore) * radius * Math.cos(angle),
-        y: center + (value / maxScore) * radius * Math.sin(angle)
-      });
-
-      const points = data.map((d, i) => {
-        const angle = (Math.PI * 2 * i) / data.length - Math.PI / 2;
-        return getCoordinates(d.score, angle);
-      });
-
-      const polygonString = points.map(p => `${p.x},${p.y}`).join(" ");
-      let svg = `<div class="flex justify-center items-center w-full"><svg width="${size}" height="${size}" class="overflow-visible font-sans">`;
-
-      // Ink Grids
-      [2, 4, 6, 8, 10].forEach(level => {
-        const gridPoints = data.map((_, i) => {
-          const angle = (Math.PI * 2 * i) / data.length - Math.PI / 2;
-          const coords = getCoordinates(level, angle);
-          return `${coords.x},${coords.y}`;
-        }).join(" ");
-        svg += `<polygon points="${gridPoints}" fill="none" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="${level < 10 ? '4,4' : 'none'}" />`;
-      });
-
-      // Axes
-      data.forEach((_, i) => {
-        const angle = (Math.PI * 2 * i) / data.length - Math.PI / 2;
-        const coords = getCoordinates(10, angle);
-        svg += `<line x1="${center}" y1="${center}" x2="${coords.x}" y2="${coords.y}" stroke="#cbd5e1" stroke-width="1" />`;
-      });
-
-      // Data Polygon
-      svg += `<polygon points="${polygonString}" fill="rgba(15, 23, 42, 0.05)" stroke="#1e293b" stroke-width="2" />`;
-      points.forEach(p => svg += `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#334155" />`);
-
-      // Labels
-      data.forEach((d, i) => {
-        const angle = (Math.PI * 2 * i) / data.length - Math.PI / 2;
-        const coords = getCoordinates(11.5, angle);
-        let anchor = "middle";
-        if (Math.cos(angle) > 0.1) anchor = "start";
-        if (Math.cos(angle) < -0.1) anchor = "end";
-        svg += `<text x="${coords.x}" y="${coords.y + 4}" text-anchor="${anchor}" fill="#64748b" class="text-[10px] sm:text-xs font-semibold tracking-wider capitalize">${d.trait}</text>`;
-      });
-
-      svg += `</svg></div>`;
-      return svg;
-    }
-    */
 
     function createFingerprintChart(data) {
       const size = 500;
@@ -1195,7 +1467,9 @@ function renderInterpretiveArtifact(poem, canvas) {
                   <span>${selectedPoem.stanza_count} Stanzas</span>
                 </div>
               </div>
-              <div class="text-slate-800 font-serif leading-loose whitespace-pre-wrap text-lg max-w-2xl mx-auto">${selectedPoem.text}</div>
+              
+              ${renderPoemText(selectedPoem.text)}
+              
               <div class="mt-12 flex justify-center gap-4">
                 <button onclick="goToDeepDive('${selectedPoem.poem_id}')" class="text-slate-600 hover:bg-[#f4f1ea] flex items-center gap-2 text-sm font-medium border border-slate-300 px-6 py-2 transition-colors uppercase tracking-wider font-mono">
                   Read Deep Dive
@@ -1205,6 +1479,42 @@ function renderInterpretiveArtifact(poem, canvas) {
                 </button>
               </div>
             </div>
+
+            <!-- RECITATION STUDIO -->
+            <div class="print-panel p-6 bg-slate-50 relative border border-slate-200" id="recitation-studio">
+              <div class="flex items-center justify-between gap-4 mb-4">
+                <div>
+                  <h3 class="text-xs font-mono font-bold text-slate-900 uppercase tracking-widest">Recitation Studio</h3>
+                  <p class="text-xs text-slate-500 mt-1 max-w-lg">Record a local reading of this poem. Nothing is uploaded. Microphone recording may require HTTPS or localhost depending on browser security settings.</p>
+                </div>
+                <div id="recording-timer" class="font-mono text-xs text-slate-900 font-bold bg-white px-3 py-1.5 border border-slate-200 rounded shadow-sm">00:00</div>
+              </div>
+
+              <div class="flex flex-wrap gap-2 mb-2">
+                <button id="record-btn" onclick="startRecitationRecording()" class="px-4 py-2 text-sm font-mono border border-slate-900 bg-slate-900 text-white hover:bg-slate-800 transition-colors">
+                  Record
+                </button>
+
+                <button id="stop-btn" onclick="stopRecitationRecording()" disabled class="px-4 py-2 text-sm font-mono border border-slate-200 text-slate-400 bg-slate-50">
+                  Stop
+                </button>
+
+                <button id="reset-btn" onclick="resetRecitationRecording()" disabled class="px-4 py-2 text-sm font-mono border border-slate-200 text-slate-400 bg-slate-50">
+                  Re-record
+                </button>
+
+                <a id="download-recording-link" class="px-4 py-2 text-sm font-mono border border-slate-200 text-slate-400 bg-slate-50 pointer-events-none transition-colors inline-block" download>
+                  Download
+                </a>
+              </div>
+
+              <audio id="recitation-audio" controls class="w-full hidden mt-4 border border-slate-200 rounded"></audio>
+
+              <p id="recording-status" class="text-xs text-slate-500 mt-3 font-mono">
+                Ready to record.
+              </p>
+            </div>
+
             <div class="print-panel p-8 bg-white">
               <h4 class="text-xs font-bold font-mono text-slate-900 uppercase tracking-widest mb-6 border-b border-slate-200 pb-2">
                 Editorial Highlights
@@ -1412,7 +1722,10 @@ function renderInterpretiveArtifact(poem, canvas) {
       switch (state.activeTab) {
         case 'dashboard': container.innerHTML = renderDashboard(); break;
         case 'database': container.innerHTML = renderDatabase(); break;
-        case 'repository': container.innerHTML = renderRepository(); break;
+        case 'repository': 
+          container.innerHTML = renderRepository(); 
+          setTimeout(() => restoreRecitationUI(), 0);
+          break;
         case 'deep_dive': container.innerHTML = renderDeepDive(); break;
         case 'analysis': 
           container.innerHTML = renderAnalysis(); 
@@ -1431,7 +1744,7 @@ function renderInterpretiveArtifact(poem, canvas) {
     window.goToAnalysis = function(poemId) { state.selectedPoemId = poemId; navigate('analysis'); };
     window.goToDeepDive = function(poemId) { state.selectedPoemId = poemId; navigate('deep_dive'); };
     window.changePoem = function(poemId) { state.selectedPoemId = poemId; render(); };
-    window.changeRepositoryPoem = function(poemId) { state.readingPoemId = poemId; render(); };
+    window.changeRepositoryPoem = function(poemId) { state.readingPoemId = poemId; resetRecitationRecording(); render(); };
     window.changeCompare = function(slot, poemId) { if (slot === 1) state.comparePoem1Id = poemId; if (slot === 2) state.comparePoem2Id = poemId; render(); };
     window.toggleDesktopSidebar = function() { state.desktopSidebarCollapsed = !state.desktopSidebarCollapsed; const sidebar = document.getElementById('sidebar'); const navTexts = document.querySelectorAll('.nav-text'); const mainNavBtns = document.querySelectorAll('.nav-btn'); const collapseIcon = document.getElementById('collapse-icon'); if (state.desktopSidebarCollapsed) { sidebar.classList.remove('w-64'); sidebar.classList.add('w-20'); navTexts.forEach(el => el.classList.add('hidden')); mainNavBtns.forEach(el => el.classList.add('justify-center')); mainNavBtns.forEach(el => el.classList.remove('justify-start')); collapseIcon.setAttribute('data-lucide', 'chevron-right'); } else { sidebar.classList.add('w-64'); sidebar.classList.remove('w-20'); navTexts.forEach(el => el.classList.remove('hidden')); mainNavBtns.forEach(el => el.classList.remove('justify-center')); mainNavBtns.forEach(el => el.classList.add('justify-start')); collapseIcon.setAttribute('data-lucide', 'chevron-left'); } lucide.createIcons(); };
     window.toggleMobileMenu = function() { state.mobileMenuOpen = !state.mobileMenuOpen; const sidebar = document.getElementById('sidebar'); const overlay = document.getElementById('mobile-menu-overlay'); if (state.mobileMenuOpen) { sidebar.classList.remove('-translate-x-full'); sidebar.classList.add('translate-x-0'); overlay.classList.remove('hidden'); } else { sidebar.classList.add('-translate-x-full'); sidebar.classList.remove('translate-x-0'); overlay.classList.add('hidden'); } };
