@@ -950,9 +950,9 @@ function renderInterpretiveArtifact(poem, canvas) {
     */
 
     function createFingerprintChart(data) {
-      const size = window.innerWidth < 640 ? 320 : 450;
-      const center = size / 2;
-      const maxR = (size / 2) - 65;
+      const size = 500;
+      const center = size / 2; // 250
+      const maxR = 135; // leaves plenty of room for wrapping labels
       const maxScore = 10;
 
       function getSmoothClosedPath(points) {
@@ -978,7 +978,7 @@ function renderInterpretiveArtifact(poem, canvas) {
         y: center + (value / maxScore) * maxR * Math.sin(angle)
       });
 
-      let svg = `<div class="flex justify-center items-center w-full"><svg width="${size}" height="${size}" class="overflow-visible font-sans">`;
+      let svg = `<div class="flex justify-center items-center w-full"><svg viewBox="0 0 ${size} ${size}" class="w-full max-w-[450px] overflow-visible font-sans">`;
 
       // 1. Background Ridge Layer (Abstract Fingerprint/Whorl)
       const numRings = 14;
@@ -1000,14 +1000,14 @@ function renderInterpretiveArtifact(poem, canvas) {
         }
         // Fade out inner and outer rings slightly
         const alpha = 0.1 + Math.sin(ringProgress * Math.PI) * 0.2;
-        svg += `<path d="${getSmoothClosedPath(ringPoints)}" fill="none" stroke="rgba(148, 163, 184, ${alpha})" stroke-width="1" />`;
+        svg += `<path d="${getSmoothClosedPath(ringPoints)}" fill="none" stroke="rgba(148, 163, 184, ${alpha})" stroke-width="1.5" />`;
       }
 
       // Radial Axes
       data.forEach((_, i) => {
         const angle = (Math.PI * 2 * i) / data.length - Math.PI / 2;
         const coords = getCoordinates(10.5, angle);
-        svg += `<line x1="${center}" y1="${center}" x2="${coords.x}" y2="${coords.y}" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="2,4" opacity="0.6"/>`;
+        svg += `<line x1="${center}" y1="${center}" x2="${coords.x}" y2="${coords.y}" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="2,4" opacity="0.6"/>`;
       });
 
       // 2. Data Ridge Layer (Aggregated Scores)
@@ -1032,7 +1032,7 @@ function renderInterpretiveArtifact(poem, canvas) {
           const nextScore = data[(i + 1) % data.length].score;
           const smoothedScore = d.score * 0.7 + prevScore * 0.15 + nextScore * 0.15;
           
-          const r = 20 + (smoothedScore / maxScore) * (maxR - 20) + (j * 3.5); 
+          const r = 20 + (smoothedScore / maxScore) * (maxR - 20) + (j * 4); 
           return {
             x: center + Math.cos(angle) * r,
             y: center + Math.sin(angle) * r
@@ -1040,24 +1040,34 @@ function renderInterpretiveArtifact(poem, canvas) {
         });
         
         const alpha = Math.abs(j) === 0 ? 0.8 : (Math.abs(j) === 1 ? 0.4 : 0.15);
-        const width = Math.abs(j) === 0 ? 2.5 : 1.5;
+        const width = Math.abs(j) === 0 ? 3 : 2;
         svg += `<path d="${getSmoothClosedPath(offsetPoints)}" fill="none" stroke="rgba(15, 23, 42, ${alpha})" stroke-width="${width}" stroke-linecap="round" />`;
       }
 
       // Add nodes at the exact data points
       dataPoints.forEach(p => {
-        svg += `<circle cx="${p.x}" cy="${p.y}" r="3" fill="#0f172a" />`;
-        svg += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1" />`;
+        svg += `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#0f172a" />`;
+        svg += `<circle cx="${p.x}" cy="${p.y}" r="8" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.5" />`;
       });
 
-      // 3. Labels
+      // 3. Labels (using tspan wrapping to prevent cutoff on narrow screens)
       data.forEach((d, i) => {
         const angle = (Math.PI * 2 * i) / data.length - Math.PI / 2;
-        const coords = getCoordinates(11.8, angle);
+        const coords = getCoordinates(12.5, angle);
         let anchor = "middle";
         if (Math.cos(angle) > 0.1) anchor = "start";
         if (Math.cos(angle) < -0.1) anchor = "end";
-        svg += `<text x="${coords.x}" y="${coords.y + 4}" text-anchor="${anchor}" fill="#475569" class="text-[10px] sm:text-xs font-bold tracking-wider capitalize">${d.trait}</text>`;
+        
+        const words = d.trait.split(' ');
+        
+        svg += `<text x="${coords.x}" y="${coords.y}" text-anchor="${anchor}" fill="#475569" font-size="12" font-weight="700" letter-spacing="0.05em" style="text-transform: capitalize;">`;
+        if (words.length > 1) {
+           svg += `<tspan x="${coords.x}" dy="-0.4em">${words[0]}</tspan>`;
+           svg += `<tspan x="${coords.x}" dy="1.3em">${words.slice(1).join(' ')}</tspan>`;
+        } else {
+           svg += `<tspan x="${coords.x}" dy="0.3em">${words[0]}</tspan>`;
+        }
+        svg += `</text>`;
       });
 
       svg += `</svg></div>`;
