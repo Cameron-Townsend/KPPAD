@@ -1203,7 +1203,8 @@ function renderInterpretiveArtifact(poem, canvas, isExport = false, isThumb = fa
   if (beh.isClosed) {
     ctx.strokeStyle = cDark;
     ctx.lineWidth = 4 * scale;
-    ctx.strokeRect(15 * scale, 15 * scale, w - 30 * scale, h - 30 * scale);
+    // Pull the border further inwards (24px instead of 15px) to leave space for labels
+    ctx.strokeRect(24 * scale, 24 * scale, w - 48 * scale, h - 48 * scale);
   }
 
   ctx.save();
@@ -1323,11 +1324,14 @@ function renderInterpretiveArtifact(poem, canvas, isExport = false, isThumb = fa
   ctx.restore();
 
   // Title / Frame stamp
-  ctx.fillStyle = cDark;
+  const stampText = `${poem.poem_id} / ${comp.toUpperCase()}`;
   const fontSize = Math.max(10, Math.floor(h * 0.033));
   ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+
+  // Draw the text tightly in the bottom left corner to avoid the border
+  ctx.fillStyle = cDark;
   ctx.textAlign = "left";
-  ctx.fillText(`${poem.poem_id} / ${comp.toUpperCase()}`, 15 * scale, h - 15 * scale);
+  ctx.fillText(stampText, 8 * scale, h - 8 * scale);
 }
 
 // Download function attached globally
